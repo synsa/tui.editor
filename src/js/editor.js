@@ -113,6 +113,7 @@ class ToastUIEditor {
         * @param {boolean} [options.useCommandShortcut=true] - whether use keyboard shortcuts to perform commands
         * @param {boolean} useDefaultHTMLSanitizer - use default htmlSanitizer
         * @param {string[]} options.codeBlockLanguages - supported code block languages to be listed
+        * @param {boolean} [options.sendHostName=true] - send host name to google analytics
     */
   constructor(options) {
     this.options = $.extend({
@@ -123,7 +124,8 @@ class ToastUIEditor {
       language: 'en_US',
       useDefaultHTMLSanitizer: true,
       useCommandShortcut: true,
-      codeBlockLanguages: CodeBlockManager.getHighlightJSLanguages()
+      codeBlockLanguages: CodeBlockManager.getHighlightJSLanguages(),
+      sendHostName: true
     }, options);
 
     this.eventManager = new EventManager();
@@ -179,6 +181,29 @@ class ToastUIEditor {
     __nedInstance.push(this);
 
     this._addDefaultCommands();
+
+    if (this.options.sendHostName) {
+      this._sendHostName();
+    }
+  }
+
+  /**
+   * send host name
+   * @memberof ToastUIEditor
+   * @private
+   */
+  _sendHostName() {
+    const trackingID = 'UA-115377265-2';
+    const hitType = 'pageview';
+    const {hostname} = location;
+
+    $.post('https://www.google-analytics.com/collect', {
+      v: 1,
+      t: hitType,
+      tid: trackingID,
+      uid: hostname,
+      dp: hostname
+    });
   }
 
   /**
